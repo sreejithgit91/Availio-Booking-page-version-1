@@ -6,6 +6,7 @@ import interactionPlugin from '@fullcalendar/interaction'
 // Shadcn UI Components
 import { BookingDrawer } from '@/components/ui/drawer'
 import ParticipantsModal from '@/components/ParticipantsModal'
+import NoCalendarBooking from '@/components/NoCalendarBooking'
 
 // Define types for better type safety
 interface BookingData {
@@ -216,24 +217,17 @@ const App: React.FC = () => {
     setIsCalendarEnabled(enabled)
     
     if (!enabled) {
-      // Calendar OFF: Hide calendar and open drawer
-      setIsDrawerOpen(true)
-      
-      // Set default booking data for manual selection
-      setBookingData({
-        date: selectedDate,
-        startTime: '17:00',
-        endTime: '18:00',
-        duration: 60,
-        courtId: 'court1',
-        courtName: 'Court 1',
-        basePrice: 25
-      })
-      setSelectedStartTime('17:00')
+      // Calendar OFF: Close drawer and show no-calendar booking UI
+      setIsDrawerOpen(false)
+      setBookingData(null)
+      setSelectedStartTime('')
       setSelectedDuration(60)
     } else {
       // Calendar ON: Close drawer if open and show calendar
       setIsDrawerOpen(false)
+      setBookingData(null)
+      setSelectedStartTime('')
+      setSelectedDuration(60)
     }
   }
 
@@ -367,119 +361,120 @@ const App: React.FC = () => {
 
           {/* Main Content */}
           {activeTab === 'Booking' && (
-            <div style={{ 
-              padding: '20px 0', 
-              backgroundColor: '#fff',
-              borderRadius: '8px',
-              marginBottom: '20px'
-            }}>
-              {/* Year and Today Button */}
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                padding: '0 30px',
-                marginBottom: '20px'
-              }}>
-                <div style={{ fontSize: '18px', fontWeight: '500' }}>2025</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <button style={{
-                    padding: '6px 12px',
-                    backgroundColor: '#f0f0f0',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px'
+            <>
+              {/* Calendar Mode UI */}
+              {isCalendarEnabled ? (
+                <div style={{ 
+                  padding: '20px 0', 
+                  backgroundColor: '#fff',
+                  borderRadius: '8px',
+                  marginBottom: '20px'
+                }}>
+                  {/* Year and Today Button */}
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    padding: '0 30px',
+                    marginBottom: '20px'
                   }}>
-                    today
-                  </button>
-                  <span style={{ fontSize: '16px' }}>📅</span>
-                </div>
-              </div>
-
-              {/* Date Picker */}
-              <div style={{ 
-                display: 'flex', 
-                overflowX: 'auto', 
-                padding: '10px 30px',
-                gap: '1px',
-                backgroundColor: '#f0f0f0',
-                margin: '0 30px',
-                borderRadius: '6px'
-              }}>
-                {dates.map((dateObj) => (
-                  <div
-                    key={dateObj.date}
-                    onClick={() => handleDateSelect(dateObj.date)}
-                    style={{ 
-                      padding: '12px 8px', 
-                      textAlign: 'center', 
-                      cursor: 'pointer', 
-                      borderRadius: '6px', 
-                      minWidth: '80px',
-                      backgroundColor: selectedDate === dateObj.date ? '#008dcc' : 'white',
-                      color: selectedDate === dateObj.date ? '#fff' : '#333',
-                      fontSize: '14px'
-                    }}
-                  >
-                    <div style={{ fontWeight: '500' }}>{dateObj.day}</div>
-                    <div>{dateObj.date}</div>
+                    <div style={{ fontSize: '18px', fontWeight: '500' }}>2025</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <button style={{
+                        padding: '6px 12px',
+                        backgroundColor: '#f0f0f0',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}>
+                        today
+                      </button>
+                      <span style={{ fontSize: '16px' }}>📅</span>
+                    </div>
                   </div>
-                ))}
-              </div>
 
-              {/* Gray separator line */}
-              <div style={{ 
-                width: 'calc(100% - 60px)', 
-                height: '1px', 
-                backgroundColor: '#ddd', 
-                margin: '25px 30px'
-              }}></div>
+                  {/* Date Picker */}
+                  <div style={{ 
+                    display: 'flex', 
+                    overflowX: 'auto', 
+                    padding: '10px 30px',
+                    gap: '1px',
+                    backgroundColor: '#f0f0f0',
+                    margin: '0 30px',
+                    borderRadius: '6px'
+                  }}>
+                    {dates.map((dateObj) => (
+                      <div
+                        key={dateObj.date}
+                        onClick={() => handleDateSelect(dateObj.date)}
+                        style={{ 
+                          padding: '12px 8px', 
+                          textAlign: 'center', 
+                          cursor: 'pointer', 
+                          borderRadius: '6px', 
+                          minWidth: '80px',
+                          backgroundColor: selectedDate === dateObj.date ? '#008dcc' : 'white',
+                          color: selectedDate === dateObj.date ? '#fff' : '#333',
+                          fontSize: '14px'
+                        }}
+                      >
+                        <div style={{ fontWeight: '500' }}>{dateObj.day}</div>
+                        <div>{dateObj.date}</div>
+                      </div>
+                    ))}
+                  </div>
 
-              {/* Toggle Switch */}
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                margin: '20px 30px' 
-              }}>
-                <div
-                  onClick={() => handleCalendarToggle(!isCalendarEnabled)}
-                  style={{
-                    width: '44px',
-                    height: '24px',
-                    backgroundColor: isCalendarEnabled ? '#008dcc' : '#ccc',
-                    borderRadius: '12px',
-                    position: 'relative',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.3s ease',
-                    marginRight: '10px'
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '20px',
-                      height: '20px',
-                      backgroundColor: '#fff',
-                      borderRadius: '50%',
-                      position: 'absolute',
-                      top: '2px',
-                      left: isCalendarEnabled ? '22px' : '2px',
-                      transition: 'left 0.3s ease',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                    }}
-                  />
-                </div>
-                <label 
-                  onClick={() => handleCalendarToggle(!isCalendarEnabled)}
-                  style={{ cursor: 'pointer', color: '#666' }}
-                >
-                  calendar
-                </label>
-              </div>
+                  {/* Gray separator line */}
+                  <div style={{ 
+                    width: 'calc(100% - 60px)', 
+                    height: '1px', 
+                    backgroundColor: '#ddd', 
+                    margin: '25px 30px'
+                  }}></div>
 
-              {/* FullCalendar Resource TimeGrid - Only show when calendar is enabled */}
-              {isCalendarEnabled && (
-                <>
+                  {/* Toggle Switch */}
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    margin: '20px 30px' 
+                  }}>
+                    <div
+                      onClick={() => handleCalendarToggle(!isCalendarEnabled)}
+                      style={{
+                        width: '44px',
+                        height: '24px',
+                        backgroundColor: isCalendarEnabled ? '#008dcc' : '#ccc',
+                        borderRadius: '12px',
+                        position: 'relative',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.3s ease',
+                        marginRight: '10px'
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          backgroundColor: '#fff',
+                          borderRadius: '50%',
+                          position: 'absolute',
+                          top: '2px',
+                          left: isCalendarEnabled ? '22px' : '2px',
+                          transition: 'left 0.3s ease',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                        }}
+                      />
+                    </div>
+                    <label 
+                      onClick={() => handleCalendarToggle(!isCalendarEnabled)}
+                      style={{ cursor: 'pointer', color: '#666' }}
+                    >
+                      calendar
+                    </label>
+                  </div>
+
+                  {/* FullCalendar Resource TimeGrid */}
                   <div style={{ 
                     fontSize: '18px', 
                     fontWeight: '600', 
@@ -535,9 +530,71 @@ const App: React.FC = () => {
                       />
                     </div>
                   </div>
-                </>
+                </div>
+              ) : (
+                /* No Calendar Mode UI */
+                <div style={{ 
+                  padding: '20px 0', 
+                  backgroundColor: '#fff',
+                  borderRadius: '8px',
+                  marginBottom: '20px'
+                }}>
+                  {/* Toggle Switch */}
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    margin: '20px 30px' 
+                  }}>
+                    <div
+                      onClick={() => handleCalendarToggle(!isCalendarEnabled)}
+                      style={{
+                        width: '44px',
+                        height: '24px',
+                        backgroundColor: isCalendarEnabled ? '#008dcc' : '#ccc',
+                        borderRadius: '12px',
+                        position: 'relative',
+                        cursor: 'pointer',
+                        transition: 'background-color 0.3s ease',
+                        marginRight: '10px'
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          backgroundColor: '#fff',
+                          borderRadius: '50%',
+                          position: 'absolute',
+                          top: '2px',
+                          left: isCalendarEnabled ? '22px' : '2px',
+                          transition: 'left 0.3s ease',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                        }}
+                      />
+                    </div>
+                    <label 
+                      onClick={() => handleCalendarToggle(!isCalendarEnabled)}
+                      style={{ cursor: 'pointer', color: '#666' }}
+                    >
+                      calendar
+                    </label>
+                  </div>
+
+                  {/* No Calendar Booking Component */}
+                  <NoCalendarBooking
+                    onBack={() => handleCalendarToggle(true)}
+                    onBook={() => {
+                      // Reset to calendar mode and close any open drawers
+                      setIsCalendarEnabled(true)
+                      setIsDrawerOpen(false)
+                      setBookingData(null)
+                      setSelectedStartTime('')
+                      setSelectedDuration(60)
+                    }}
+                  />
+                </div>
               )}
-            </div>
+            </>
           )}
 
           {/* Info Tab */}

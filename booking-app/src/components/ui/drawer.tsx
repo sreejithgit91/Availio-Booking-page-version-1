@@ -1,5 +1,5 @@
 import React from 'react'
-import { User, DollarSign, Info } from "lucide-react"
+import { User, Info } from "lucide-react"
 
 interface BookingDrawerProps {
   date?: string
@@ -25,7 +25,7 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
   const [time, setTime] = React.useState(selectedTime)
   const [duration, setDuration] = React.useState(selectedDuration)
   const [selectedMemberType, setSelectedMemberType] = React.useState<string>('')
-  const [selectedPaymentOption, setSelectedPaymentOption] = React.useState<string>('')
+  const [selectedPaymentOption, setSelectedPaymentOption] = React.useState<string>('Credit Card')
   
   // State for the Add Players modal
   const [isAddPlayersOpen, setIsAddPlayersOpen] = React.useState(false)
@@ -55,8 +55,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
   
 
   
-  // Payment options for step 2
-  const paymentOptions = ["Instant Payment", "Invoice", "Cash"]
+  // Payment methods for step 2 (limit to Credit Card and PayPal)
+  const paymentOptions = ["Credit Card", "PayPal"]
 
   // Helper function to calculate end time
   const calculateEndTime = (startTime: string, duration: string): string => {
@@ -160,7 +160,7 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       flexDirection: "column" as const,
       justifyContent: "space-between",
       padding: "16px",
-      fontFamily: "Helvetica Neue, sans-serif",
+      fontFamily: "'Segoe UI', Arial, sans-serif",
       width: "100%" // Ensure full width utilization
     },
     // Content wrapper to left-align all content within the full-width drawer
@@ -176,7 +176,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       fontWeight: "600",
       fontSize: "16px",
       marginBottom: "14px",
-      textAlign: "left" as const
+      textAlign: "left" as const,
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Section container for each form group - left aligned content
     drawerSection: {
@@ -191,40 +192,50 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       fontSize: "14px",
       marginBottom: "6px",
       fontWeight: "500",
-      textAlign: "left" as const // Left align labels
+      textAlign: "left" as const, // Left align labels
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Container for button rows (time slots, duration options) - left aligned
     drawerButtonRow: {
       display: "flex",
       flexWrap: "wrap" as const,
-      gap: "10px",
+      gap: "8px",
       justifyContent: "flex-start" as const, // Left align buttons
       width: "100%" // Use full width
     },
-    // Default button styling for unselected options
+    // Default button styling for unselected options (neutral pill)
     drawerButton: {
-      background: "#eee",
-      border: "none",
-      padding: "10px 14px",
-      borderRadius: "4px",
+      background: "#f3f4f6",
+      border: "1px solid #e5e7eb",
+      color: "#111827",
+      padding: "6px 10px",
+      borderRadius: "12px",
       cursor: "pointer",
-      minWidth: "60px",
+      minWidth: "64px",
+      height: "36px",
       fontSize: "14px",
-      transition: "background 0.2s ease",
-      flex: "0 0 auto" // Prevent stretching
+      transition: "all 0.2s ease",
+      flex: "0 0 auto", // Prevent stretching
+      fontFamily: "'Segoe UI', Arial, sans-serif",
+      lineHeight: 1.2,
+      boxShadow: "0 2px 6px rgba(0,0,0,0.06)"
     },
-    // Selected button styling
+    // Selected button styling (blue pill)
     drawerButtonSelected: {
-      background: "#007bff",
+      background: "#0e8fc6",
+      border: "1px solid #0e78a8",
       color: "white",
-      border: "none",
-      padding: "10px 14px",
-      borderRadius: "4px",
+      padding: "6px 10px",
+      borderRadius: "12px",
       cursor: "pointer",
-      minWidth: "60px",
+      minWidth: "64px",
+      height: "36px",
       fontSize: "14px",
-      transition: "background 0.2s ease",
-      flex: "0 0 auto" // Prevent stretching
+      transition: "all 0.2s ease",
+      flex: "0 0 auto", // Prevent stretching
+      fontFamily: "'Segoe UI', Arial, sans-serif",
+      lineHeight: 1.2,
+      boxShadow: "0 6px 14px rgba(14, 143, 198, 0.35)"
     },
     // Price section container - for inline label and value, left aligned
     drawerPriceSection: {
@@ -239,7 +250,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
     drawerPriceLabel: {
       fontSize: "14px",
       fontWeight: "500",
-      color: "#333"
+      color: "#333",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Price display box styling - inline
     drawerPriceBox: {
@@ -250,7 +262,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       color: "#5a5a5a",
       display: "inline-block",
       fontSize: "14px",
-      textAlign: "left" as const
+      textAlign: "left" as const,
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Footer container with navigation and summary - left aligned
     drawerFooter: {
@@ -273,7 +286,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       fontSize: "14px",
       cursor: "pointer",
       transition: "background 0.2s ease",
-      flex: "0 0 auto"
+      flex: "0 0 auto",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Next button styling
     drawerNext: {
@@ -284,7 +298,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       fontSize: "14px",
       cursor: "pointer",
       transition: "background 0.2s ease",
-      flex: "0 0 auto"
+      flex: "0 0 auto",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Summary text container in footer - left aligned
     drawerSummary: {
@@ -294,7 +309,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       fontSize: "14px",
       flex: "1",
       justifyContent: "flex-start" as const, // Left align the summary
-      flexWrap: "wrap" as const
+      flexWrap: "wrap" as const,
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Step 2 specific styles
     // Title for step 2
@@ -303,7 +319,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       fontSize: "18px",
       marginBottom: "20px",
       textAlign: "left" as const,
-      color: "#333"
+      color: "#333",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Step indicator container
     stepContainer: {
@@ -315,9 +332,10 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
     // Step title styling
     stepTitle: {
       fontSize: "16px",
-      fontWeight: "600",
+      fontWeight: "bold",
       marginBottom: "10px",
-      color: "#333"
+      color: "#333",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Member type button styling (wider buttons)
     memberTypeButton: {
@@ -329,7 +347,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       minWidth: "140px",
       fontSize: "14px",
       transition: "background 0.2s ease",
-      flex: "0 0 auto"
+      flex: "0 0 auto",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     memberTypeButtonSelected: {
       background: "#007bff",
@@ -341,31 +360,41 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       minWidth: "140px",
       fontSize: "14px",
       transition: "background 0.2s ease",
-      flex: "0 0 auto"
+      flex: "0 0 auto",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Payment option button styling
     paymentButton: {
-      background: "#eee",
-      border: "none",
-      padding: "12px 20px",
-      borderRadius: "4px",
+      background: "#f3f4f6",
+      border: "1px solid #e5e7eb",
+      color: "#111827",
+      padding: "10px 14px",
+      borderRadius: "12px",
       cursor: "pointer",
-      minWidth: "120px",
+      minWidth: "auto",
+      height: "36px",
       fontSize: "14px",
-      transition: "background 0.2s ease",
-      flex: "0 0 auto"
+      transition: "all 0.2s ease",
+      flex: "0 0 auto",
+      fontFamily: "'Segoe UI', Arial, sans-serif",
+      lineHeight: 1.2,
+      boxShadow: "0 2px 6px rgba(0,0,0,0.06)"
     },
     paymentButtonSelected: {
-      background: "#007bff",
+      background: "#0e8fc6",
+      border: "1px solid #0e78a8",
       color: "white",
-      border: "none",
-      padding: "12px 20px",
-      borderRadius: "4px",
+      padding: "10px 14px",
+      borderRadius: "12px",
       cursor: "pointer",
-      minWidth: "120px",
+      minWidth: "auto",
+      height: "36px",
       fontSize: "14px",
-      transition: "background 0.2s ease",
-      flex: "0 0 auto"
+      transition: "all 0.2s ease",
+      flex: "0 0 auto",
+      fontFamily: "'Segoe UI', Arial, sans-serif",
+      lineHeight: 1.2,
+      boxShadow: "0 6px 14px rgba(14, 143, 198, 0.35)"
     },
     // Summary section styling (light blue background)
     summarySection: {
@@ -381,17 +410,20 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       justifyContent: "space-between",
       alignItems: "center",
       marginBottom: "8px",
-      fontSize: "14px"
+      fontSize: "14px",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Summary label styling
     summaryLabel: {
       color: "#333",
-      fontWeight: "500"
+      fontWeight: "500",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Summary value styling
     summaryValue: {
       color: "#333",
-      fontWeight: "600"
+      fontWeight: "600",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Total row styling (emphasized)
     totalRow: {
@@ -402,7 +434,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       paddingTop: "12px",
       borderTop: "1px solid #ccc",
       fontSize: "16px",
-      fontWeight: "600"
+      fontWeight: "600",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Book now button styling
     bookNowButton: {
@@ -415,7 +448,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       fontWeight: "600",
       cursor: "pointer",
       transition: "background 0.2s ease",
-      flex: "0 0 auto"
+      flex: "0 0 auto",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     },
     // Booking slot details styling
     bookingSlotDetails: {
@@ -428,7 +462,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
       borderRadius: "4px",
       fontSize: "14px",
       fontWeight: "500",
-      color: "#333"
+      color: "#333",
+      fontFamily: "'Segoe UI', Arial, sans-serif"
     }
   }
 
@@ -450,12 +485,16 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
               onClick={() => setTime(slot)}
               onMouseEnter={(e) => {
                 if (time !== slot) {
-                  e.currentTarget.style.background = "#ddd"
+                  e.currentTarget.style.background = "#f8fafc"
+                  e.currentTarget.style.borderColor = "#cbd5e1"
+                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 10px rgba(0,0,0,0.08)"
                 }
               }}
               onMouseLeave={(e) => {
                 if (time !== slot) {
-                  e.currentTarget.style.background = "#eee"
+                  e.currentTarget.style.background = "#f3f4f6"
+                  e.currentTarget.style.borderColor = "#e5e7eb"
+                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = "0 2px 6px rgba(0,0,0,0.06)"
                 }
               }}
             >
@@ -477,12 +516,16 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
               onClick={() => setDuration(option)}
               onMouseEnter={(e) => {
                 if (duration !== option) {
-                  e.currentTarget.style.background = "#ddd"
+                  e.currentTarget.style.background = "#f8fafc"
+                  e.currentTarget.style.borderColor = "#cbd5e1"
+                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 10px rgba(0,0,0,0.08)"
                 }
               }}
               onMouseLeave={(e) => {
                 if (duration !== option) {
-                  e.currentTarget.style.background = "#eee"
+                  e.currentTarget.style.background = "#f3f4f6"
+                  e.currentTarget.style.borderColor = "#e5e7eb"
+                  ;(e.currentTarget as HTMLButtonElement).style.boxShadow = "0 2px 6px rgba(0,0,0,0.06)"
                 }
               }}
             >
@@ -551,15 +594,16 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
           color: '#333',
           gap: '8px',
           lineHeight: '1',
-          marginTop: '2px'
+          marginTop: '2px',
+          fontFamily: "'Segoe UI', Arial, sans-serif"
         }}>
-          <span style={{ fontWeight: '600' }}>{date}</span>
-          <span style={{ fontWeight: '600' }}>•</span>
-          <span style={{ fontWeight: '600' }}>{time} - {calculateEndTime(time, duration)}</span>
-          <span style={{ fontWeight: '600' }}>•</span>
-          <span style={{ fontWeight: '600' }}>{duration}min</span>
-          <span style={{ fontWeight: '600' }}>•</span>
-          <span style={{ fontWeight: '600' }}>{resource}</span>
+          <span style={{ fontWeight: '600', fontFamily: "'Segoe UI', Arial, sans-serif" }}>{date}</span>
+          <span style={{ fontWeight: '600', fontFamily: "'Segoe UI', Arial, sans-serif" }}>•</span>
+          <span style={{ fontWeight: '600', fontFamily: "'Segoe UI', Arial, sans-serif" }}>{time} - {calculateEndTime(time, duration)}</span>
+          <span style={{ fontWeight: '600', fontFamily: "'Segoe UI', Arial, sans-serif" }}>•</span>
+          <span style={{ fontWeight: '600', fontFamily: "'Segoe UI', Arial, sans-serif" }}>{duration}min</span>
+          <span style={{ fontWeight: '600', fontFamily: "'Segoe UI', Arial, sans-serif" }}>•</span>
+          <span style={{ fontWeight: '600', fontFamily: "'Segoe UI', Arial, sans-serif" }}>{resource}</span>
         </div>
       </div>
 
@@ -612,6 +656,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                       transition: 'all 0.2s ease',
                       color: selectedMemberType === player.name ? 'white' : '#333'
                     }}
+                    aria-label={`Select ${player.name}`}
+                    title={`Select ${player.name}`}
                     onClick={() => setSelectedMemberType(player.name)}
                     onMouseEnter={(e) => {
                       if (selectedMemberType !== player.name) {
@@ -626,11 +672,7 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                       }
                     }}
                   >
-                    {player.hasGuestFee ? (
-                      <DollarSign size={24} />
-                    ) : (
-                      <User size={24} />
-                    )}
+                    <User size={24} />
                   </button>
                   <button
                     style={{
@@ -652,6 +694,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                       boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                       transition: 'all 0.2s ease'
                     }}
+                    aria-label={`Remove ${player.name}`}
+                    title={`Remove ${player.name}`}
                     onClick={(e) => {
                       e.stopPropagation()
                       // Remove the player logic here
@@ -668,7 +712,6 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                       e.currentTarget.style.background = '#dc3545'
                       e.currentTarget.style.transform = 'scale(1)'
                     }}
-                    title="Remove player"
                   >
                     ×
                   </button>
@@ -681,7 +724,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                   maxWidth: '80px',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  fontFamily: "'Segoe UI', Arial, sans-serif"
                 }}>
                   {player.name}
                 </span>
@@ -704,6 +748,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                   fontSize: '20px',
                   fontWeight: 'bold'
                 }}
+                aria-label="Add player"
+                title="Add player"
                 onClick={handleAddPlayers}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = '#007bff'
@@ -720,7 +766,8 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                 fontSize: '12px',
                 textAlign: 'center',
                 color: '#333',
-                fontWeight: '500'
+                fontWeight: '500',
+                fontFamily: "'Segoe UI', Arial, sans-serif"
               }}>
                 Add
               </span>
@@ -729,7 +776,7 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
         </div>
 
         {/* Step 2: Choose Payment Option */}
-        <div style={styles.drawerSection}>
+        <div style={{...styles.drawerSection, marginTop: '30px'}}>
           <div style={styles.stepTitle}>2: Choose Payment Option</div>
           <div style={styles.drawerButtonRow}>
             {paymentOptions.map((option) => (
@@ -739,12 +786,16 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                 onClick={() => setSelectedPaymentOption(option)}
                 onMouseEnter={(e) => {
                   if (selectedPaymentOption !== option) {
-                    e.currentTarget.style.background = "#ddd"
+                    e.currentTarget.style.background = "#f8fafc"
+                    ;(e.currentTarget as HTMLButtonElement).style.borderColor = "#cbd5e1"
+                    ;(e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 10px rgba(0,0,0,0.08)"
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (selectedPaymentOption !== option) {
-                    e.currentTarget.style.background = "#eee"
+                    e.currentTarget.style.background = "#f3f4f6"
+                    ;(e.currentTarget as HTMLButtonElement).style.borderColor = "#e5e7eb"
+                    ;(e.currentTarget as HTMLButtonElement).style.boxShadow = "0 2px 6px rgba(0,0,0,0.06)"
                   }
                 }}
               >
