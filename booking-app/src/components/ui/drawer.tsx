@@ -35,6 +35,10 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
   const [guestSurname, setGuestSurname] = React.useState('')
   const [guestEmail, setGuestEmail] = React.useState('')
   const [showInfoTooltip, setShowInfoTooltip] = React.useState(false)
+  
+  // Guest quota system
+  const MAX_GUESTS_PER_BOOKING = 3
+  const [selectedEventParticipants, setSelectedEventParticipants] = React.useState<any[]>([])
 
   // Debug modal state changes
   React.useEffect(() => {
@@ -98,17 +102,51 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
 
   // Handle final booking confirmation
   const handleBookNow = () => {
-    // Here you would typically send the booking data to your backend
-    console.log('Booking confirmed:', {
-      date,
+    // Handle the final booking logic here
+    console.log('Booking confirmed with:', {
       time,
       duration,
-      memberType: selectedMemberType,
-      paymentOption: selectedPaymentOption,
-      total
+      selectedMemberType,
+      selectedPaymentOption
     })
-    // Close the drawer by calling the parent's onNext
-    if (onNext) onNext()
+  }
+
+  // Handle adding guests to participants list
+  const handleAddGuest = () => {
+    if (guestName.trim() && guestSurname.trim() && guestEmail.trim()) {
+      const currentGuestCount = selectedEventParticipants.filter(p => p.type === 'guest').length
+      console.log('Current guest count before adding:', currentGuestCount, 'Max allowed:', MAX_GUESTS_PER_BOOKING)
+      
+      if (currentGuestCount >= MAX_GUESTS_PER_BOOKING) {
+        console.log('Guest quota reached! Cannot add more guests.')
+        return // Don't add if quota reached
+      }
+      
+      const newGuest = {
+        id: Date.now().toString(),
+        name: guestName.trim(),
+        surname: guestSurname.trim(),
+        email: guestEmail.trim(),
+        type: 'guest' as const
+      }
+      setSelectedEventParticipants(prev => [...prev, newGuest])
+      setGuestName('')
+      setGuestSurname('')
+      setGuestEmail('')
+      setPlayerType('members') // Reset to members tab
+      console.log('Guest added successfully. New count:', currentGuestCount + 1)
+    }
+  }
+
+  // Handle adding members to participants list
+  const handleAddMember = (member: any) => {
+    const newMember = {
+      id: member.id,
+      name: member.name,
+      type: 'member' as const
+    }
+    setSelectedEventParticipants(prev => [...prev, newMember])
+    setMemberSearch('')
   }
 
   // Handle + Add button click
@@ -118,23 +156,23 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
     console.log('Modal state set to:', true)
   }
 
-  // Handle player selection confirmation
+  // Handle select players button click
   const handleSelectPlayers = () => {
-    // Here you would typically add the selected players to the booking
-    console.log('Players selected:', {
-      type: playerType,
-      memberSearch,
-      guestName,
-      guestSurname,
-      guestEmail
-    })
-    setIsAddPlayersOpen(false)
-    // Reset form
-    setPlayerType('members')
-    setMemberSearch('')
-    setGuestName('')
-    setGuestSurname('')
-    setGuestEmail('')
+    if (playerType === 'guests') {
+      // Check if adding this guest would exceed the quota
+      const currentGuestCount = selectedEventParticipants.filter(p => p.type === 'guest').length
+      if (currentGuestCount >= MAX_GUESTS_PER_BOOKING) {
+        console.log('Guest quota reached! Cannot add more guests.')
+        return
+      }
+      
+      handleAddGuest()
+    } else if (playerType === 'members' && selectedMemberType) {
+      const member = samplePlayers.find(p => p.name === selectedMemberType)
+      if (member) {
+        handleAddMember(member)
+      }
+    }
   }
 
   // Handle modal close
@@ -946,6 +984,152 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
               <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
                 Guests
               </label>
+              
+              {/* Guest Quota Status */}
+              <div style={{ 
+                marginBottom: '12px', 
+                padding: '8px 12px', 
+                backgroundColor: '#f0f9ff', 
+                borderRadius: '4px',
+                border: '1px solid #0e8fc6',
+                fontSize: '12px'
+              }}>
+                <span style={{ color: '#0e8fc6', fontWeight: '600' }}>
+                  Guest Quota: {selectedEventParticipants.filter(p => p.type === 'guest').length} of {MAX_GUESTS_PER_BOOKING} guests added
+                </span>
+                {/* Temporary test button - remove this later */}
+                <button
+                  onClick={() => {
+                    const testGuest = {
+                      id: Date.now().toString(),
+                      name: `Test Guest ${selectedEventParticipants.filter(p => p.type === 'guest').length + 1}`,
+                      surname: 'Test',
+                      email: `test${selectedEventParticipants.filter(p => p.type === 'guest').length + 1}@test.com`,
+                      type: 'guest' as const
+                    }
+                    setSelectedEventParticipants(prev => [...prev, testGuest])
+                  }}
+                  style={{
+                    marginLeft: '8px',
+                    padding: '2px 6px',
+                    backgroundColor: '#0e8fc6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '3px',
+                    fontSize: '10px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  + Test Guest
+                </button>
+              </div>
+              
+              {/* Current Participants Display */}
+              {selectedEventParticipants.length > 0 && (
+                <div style={{ 
+                  marginBottom: '12px', 
+                  padding: '8px 12px', 
+                  backgroundColor: '#f9fafb', 
+                  borderRadius: '4px',
+                  border: '1px solid #e5e7eb'
+                }}>
+                  <div style={{ fontSize: '12px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+                    Current Participants:
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {selectedEventParticipants.map(participant => (
+                      <div key={participant.id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '2px 6px',
+                        backgroundColor: participant.type === 'guest' ? '#10b981' : '#0e8fc6',
+                        color: 'white',
+                        borderRadius: '12px',
+                        fontSize: '10px',
+                        fontWeight: '500'
+                      }}>
+                        <span>{participant.name}</span>
+                        <span style={{ fontSize: '8px' }}>
+                          {participant.type === 'guest' ? 'G' : 'M'}
+                        </span>
+                        <button
+                          onClick={() => {
+                            setSelectedEventParticipants(prev => 
+                              prev.filter(p => p.id !== participant.id)
+                            )
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'white',
+                            cursor: 'pointer',
+                            fontSize: '8px',
+                            padding: '0',
+                            marginLeft: '2px'
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Guest Quota Banner */}
+              {selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING && (
+                <div style={{ 
+                  marginBottom: '16px', 
+                  padding: '12px', 
+                  backgroundColor: '#fef3c7', 
+                  borderRadius: '6px',
+                  border: '1px solid #f59e0b',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#92400e',
+                    marginBottom: '4px'
+                  }}>
+                    Your guest quota limit reached for the day
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: '#92400e',
+                    marginBottom: '8px'
+                  }}>
+                    Will get reset tomorrow
+                  </div>
+                  <button
+                    onClick={() => {
+                      // This would navigate to bookings view in a real app
+                      alert('Navigate to View My Bookings')
+                    }}
+                    style={{
+                      padding: '6px 12px',
+                      backgroundColor: '#f59e0b',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#d97706'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f59e0b'
+                    }}
+                  >
+                    View my Bookings
+                  </button>
+                </div>
+              )}
+              
               <div className="radio-group" style={{ display: 'flex', alignItems: 'flex-start' }}>
                 <input 
                   type="radio" 
@@ -955,13 +1139,18 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                   onChange={() => setPlayerType('guests')}
                   style={{ marginRight: '8px', marginTop: '5px' }}
                   aria-label="Select Guests"
+                  disabled={selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING}
                 />
-                <div className="guest-inputs">
+                <div className="guest-inputs" style={{
+                  opacity: selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING ? 0.5 : 1,
+                  pointerEvents: selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING ? 'none' : 'auto'
+                }}>
                   <input 
                     type="text" 
                     placeholder="Name"
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
+                    disabled={selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING}
                     style={{
                       display: 'block',
                       width: '100%',
@@ -976,6 +1165,7 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                     placeholder="Surname"
                     value={guestSurname}
                     onChange={(e) => setGuestSurname(e.target.value)}
+                    disabled={selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING}
                     style={{
                       display: 'block',
                       width: '100%',
@@ -990,6 +1180,7 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
                     placeholder="E-Mail"
                     value={guestEmail}
                     onChange={(e) => setGuestEmail(e.target.value)}
+                    disabled={selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING}
                     style={{
                       display: 'block',
                       width: '100%',
@@ -1006,17 +1197,19 @@ const BookingDrawer: React.FC<BookingDrawerProps> = ({
             <button 
               className="select-btn"
               onClick={handleSelectPlayers}
+              disabled={playerType === 'guests' && selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING}
               style={{
                 display: 'block',
                 marginLeft: 'auto',
                 padding: '6px 16px',
-                backgroundColor: '#ddd',
+                backgroundColor: (playerType === 'guests' && selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING) ? '#9ca3af' : '#ddd',
                 border: '1px solid #000',
                 borderRadius: '4px',
-                cursor: 'pointer',
+                cursor: (playerType === 'guests' && selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING) ? 'not-allowed' : 'pointer',
+                opacity: (playerType === 'guests' && selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING) ? 0.6 : 1
               }}
             >
-              Select
+              {playerType === 'guests' && selectedEventParticipants.filter(p => p.type === 'guest').length >= MAX_GUESTS_PER_BOOKING ? 'Quota Reached' : 'Select'}
             </button>
           </div>
         </div>
