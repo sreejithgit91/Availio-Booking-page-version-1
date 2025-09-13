@@ -1,12 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import FullCalendar from '@fullcalendar/react'
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 
 // Shadcn UI Components
-import { BookingDrawer } from '@/components/ui/drawer'
-import ParticipantsModal from '@/components/ParticipantsModal'
-import NoCalendarBooking from '@/components/NoCalendarBooking'
+// Removed Drawer usage
+import ParticipantsModal from './components/ParticipantsModal'
+import NoCalendarBooking from './components/NoCalendarBooking'
 
 // Define types for better type safety
 interface BookingData {
@@ -28,16 +29,14 @@ interface Participant {
 
 
 const App: React.FC = () => {
+  const navigate = useNavigate()
   const [selectedDate, setSelectedDate] = useState('29.07')
   const [activeTab, setActiveTab] = useState('Booking')
   const [isCalendarEnabled, setIsCalendarEnabled] = useState(true) // Calendar toggle state
   const [activeLocation, setActiveLocation] = useState<'Sports Ground' | 'Tennis Outdoor'>('Sports Ground')
   
-  // Booking system states
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  // State for booking data
   const [bookingData, setBookingData] = useState<BookingData | null>(null)
-  const [selectedStartTime, setSelectedStartTime] = useState('')
-  const [selectedDuration, setSelectedDuration] = useState(60)
   
   // Participants modal state
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false)
@@ -59,12 +58,9 @@ const App: React.FC = () => {
     return `${year}-${month}-${day}`
   }
 
-  // Policy: hardcoded advance booking block (03.08–06.08)
-  const BLOCKED_DATES_DDMM = new Set(['03.08', '04.08', '05.08', '06.08'])
-  const isHardBlocked = (ddmm: string) => BLOCKED_DATES_DDMM.has(ddmm)
-  const selectedFullDate = getFullDate(selectedDate)
-  const isAdvanceBlocked = isHardBlocked(selectedDate)
-  const advanceMessage = 'Booking in advance is posssible only upto 4 days'
+  // Remove advance booking restrictions
+  const isAdvanceBlocked = false
+  const advanceMessage = ''
   
   // Calculate earliest available date (4 days from now)
   const getEarliestAvailableDate = () => {
@@ -78,9 +74,9 @@ const App: React.FC = () => {
   }
   
   // Handle advance booking modal
-  const handleAdvanceBookingModal = () => {
-    setIsAdvanceBookingModalOpen(true)
-  }
+  // const handleAdvanceBookingModal = () => {
+  //   setIsAdvanceBookingModalOpen(true)
+  // }
   
   // Handle earliest date selection
   const handleUseEarliestDate = () => {
@@ -93,10 +89,7 @@ const App: React.FC = () => {
     setIsAdvanceBookingModalOpen(false)
   }
 
-  // Debug effect to monitor drawer state
-  useEffect(() => {
-    console.log('Drawer state changed:', isDrawerOpen)
-  }, [isDrawerOpen])
+  // Drawer removed
 
 
 
@@ -124,12 +117,7 @@ const App: React.FC = () => {
     { id: 'court3', title: 'Court 3' }
   ]
 
-  // Duration options
-  const durationOptions = [
-    { minutes: 60, label: '60min', price: 25 },
-    { minutes: 90, label: '90min', price: 35 },
-    { minutes: 120, label: '120min', price: 45 }
-  ]
+  // Duration options removed in routed flow
 
 
 
@@ -183,22 +171,11 @@ const App: React.FC = () => {
     ]
   }
 
-  // Disabled slots (not bookable) shown as background and enforced via selectAllow
-  const generateDisabledSlotsForDate = (date: string) => {
-    // Only Court 3 is disabled for the entire day
-    return [
-      {
-        id: 'd3',
-        resourceId: 'court3',
-        title: 'Not available for your group',
-        start: `${date}T07:00:00`,
-        end: `${date}T22:00:00`,
-        display: 'background' as const,
-        backgroundColor: '#e5e7eb',
-        overlap: false
-      }
-    ]
-  }
+     // Disabled slots (not bookable) shown as background and enforced via selectAllow
+   const generateDisabledSlotsForDate = (_date: string) => {
+     // Court 3 is now available - no more disabled slots
+     return []
+   }
 
   // Handle date selection from horizontal picker
   const handleDateSelect = (dateStr: string) => {
@@ -243,18 +220,12 @@ const App: React.FC = () => {
     }
   }
 
-  // Handle time slot selection on FullCalendar - Open drawer (S1)
+  // Handle time slot selection on FullCalendar - Show inline booking form
   const handleTimeSlotSelect = (selectInfo: any) => {
     console.log('Time slot selected:', selectInfo) // Debug log
     const courtResource = selectInfo.resource
     const startTime = selectInfo.start
     const endTime = selectInfo.end
-    
-    // Check if this is an advance-booking blocked date
-    if (isAdvanceBlocked) {
-      handleAdvanceBookingModal()
-      return
-    }
     
     // Calculate duration in minutes
     const duration = (endTime.getTime() - startTime.getTime()) / (1000 * 60)
@@ -271,10 +242,23 @@ const App: React.FC = () => {
     }
     
     setBookingData(booking)
-    setSelectedStartTime(booking.startTime)
-    setSelectedDuration(duration)
-    setIsDrawerOpen(true)
-    console.log('Drawer should be open now, isDrawerOpen:', true) // Debug log
+    // Data is immediately reflected in the form below
+  }
+
+  // Handle booking confirmation
+  const handleBookingConfirm = () => {
+    if (bookingData) {
+      const params = new URLSearchParams({
+        date: bookingData.date,
+        start: bookingData.startTime,
+        duration: bookingData.duration.toString(),
+        resourceId: bookingData.courtId,
+        price: bookingData.basePrice.toString(),
+        currency: 'CHF',
+        payment: 'Credit Card'
+      })
+      navigate(`/booking/confirm?${params.toString()}`)
+    }
   }
 
 
@@ -282,20 +266,6 @@ const App: React.FC = () => {
   // Handle calendar toggle
   const handleCalendarToggle = (enabled: boolean) => {
     setIsCalendarEnabled(enabled)
-    
-    if (!enabled) {
-      // Calendar OFF: Close drawer and show no-calendar booking UI
-      setIsDrawerOpen(false)
-      setBookingData(null)
-      setSelectedStartTime('')
-      setSelectedDuration(60)
-    } else {
-      // Calendar ON: Close drawer if open and show calendar
-      setIsDrawerOpen(false)
-      setBookingData(null)
-      setSelectedStartTime('')
-      setSelectedDuration(60)
-    }
   }
 
   return (
@@ -467,7 +437,7 @@ const App: React.FC = () => {
           {/* Main Content */}
           {activeTab === 'Booking' && (
             <>
-              {/* Calendar Mode UI */}
+              {/* Calendar Mode UI - Always visible at top */}
               {isCalendarEnabled ? (
                 <div style={{ 
                   padding: '20px 0', 
@@ -579,17 +549,15 @@ const App: React.FC = () => {
                     </label>
                   </div>
 
-                                     {/* FullCalendar Resource TimeGrid */}
-                   <div style={{ 
-                     fontSize: '18px', 
-                     fontWeight: '600', 
-                     marginBottom: '15px',
-                     padding: '0 30px'
-                   }}>
-                     Court Availability Timeline
-                   </div>
-                   
-                   
+                  {/* FullCalendar Resource TimeGrid */}
+                  <div style={{ 
+                    fontSize: '18px', 
+                    fontWeight: '600', 
+                    marginBottom: '15px',
+                    padding: '0 30px'
+                  }}>
+                    Court Availability Timeline
+                  </div>
                   
                   <div style={{ 
                     padding: '0 30px',
@@ -604,12 +572,6 @@ const App: React.FC = () => {
                         const fullDate = getFullDate(selectedDate)
                         const disabledSlots = generateDisabledSlotsForDate(fullDate)
                         const dayEvents = generateEventsForDate(fullDate)
-                         // Add background overlays to disable time slots for advance-booking blocked dates
-                         const advanceDisabled = isAdvanceBlocked ? [
-                           { id: 'ad1', resourceId: 'court1', title: 'Advance Booking Blocked', start: `${fullDate}T07:00:00`, end: `${fullDate}T22:00:00`, display: 'background' as const, backgroundColor: 'rgba(229, 231, 235, 0.3)', overlap: false },
-                           { id: 'ad2', resourceId: 'court2', title: 'Advance Booking Blocked', start: `${fullDate}T07:00:00`, end: `${fullDate}T22:00:00`, display: 'background' as const, backgroundColor: 'rgba(229, 231, 235, 0.3)', overlap: false },
-                           { id: 'ad3', resourceId: 'court3', title: 'Advance Booking Blocked', start: `${fullDate}T07:00:00`, end: `${fullDate}T22:00:00`, display: 'background' as const, backgroundColor: 'rgba(229, 231, 235, 0.3)', overlap: false },
-                         ] : []
                         return (
                       <FullCalendar
                         ref={calendarRef}
@@ -618,43 +580,24 @@ const App: React.FC = () => {
                         initialDate={fullDate}
                         headerToolbar={false}
                         resources={courtResources}
-                        events={[...dayEvents, ...disabledSlots, ...advanceDisabled]}
+                        events={[...dayEvents, ...disabledSlots]}
                         eventClick={handleEventClick}
                         select={handleTimeSlotSelect}
-                                                 eventDidMount={(info) => {
+                        eventDidMount={(info) => {
                            // Make disabled background events not clickable
-                           if (info.event.display === 'background' || info.event.title === 'Unavailable' || info.event.title === 'Advance Booking Blocked') {
+                           if (info.event.display === 'background' || info.event.title === 'Unavailable') {
                              info.el.style.pointerEvents = 'none'
                            }
                          }}
-                                                                          selectAllow={(selectInfo) => {
-                            // Prevent selection on Court 3 entirely
-                            const isCourt3 = selectInfo.resource?.id === 'court3'
-                            
-                            // Allow selection on advance-booking blocked dates to show dialog
-                            // No more advance-booking restriction - timeline stays active
-                            return !isCourt3
+                        selectAllow={(_selectInfo) => {
+                            // All courts are now available for selection
+                            return true
                           }}
                         selectable={true}
                         selectMirror={true}
-                                                 eventContent={(arg) => {
+                        eventContent={(arg) => {
                            const event = arg.event
                            if (event.display === 'background') {
-                            // Show message for Court 3 disabled and advance blocked overlays
-                            if (event.getResources()[0]?.id === 'court3' && event.title === 'Not available for your group') {
-                              return {
-                                html: `
-                                  <div style="padding: 12px; font-size: 14px; line-height: 1.3; text-align: center; color: #374151; font-weight: 600;">
-                                    <div style="margin-bottom: 6px; font-size: 18px;">🔒</div>
-                                    <div>Not available for your group</div>
-                                  </div>
-                                `
-                              }
-                            }
-                                                         if (event.title === 'Advance Booking Blocked') {
-                               // No text needed - just transparent background overlay
-                               return { html: '' }
-                             }
                             return { html: '' }
                           }
                            const organizer = event.extendedProps.organizer
@@ -775,13 +718,25 @@ const App: React.FC = () => {
                     bookingBlocked={isAdvanceBlocked}
                     blockedMessage={advanceMessage}
                     onBook={() => {
-                      // Reset to calendar mode and close any open drawers
                       setIsCalendarEnabled(true)
-                      setIsDrawerOpen(false)
-                      setBookingData(null)
-                      setSelectedStartTime('')
-                      setSelectedDuration(60)
                     }}
+                  />
+                </div>
+              )}
+
+              {/* Non-Calendar Booking Form - Only visible after slot selection */}
+              {isCalendarEnabled && bookingData && (
+                <div style={{ 
+                  padding: '20px 0', 
+                  backgroundColor: '#fff',
+                  borderRadius: '8px',
+                  marginBottom: '20px'
+                }}>
+                  <NoCalendarBooking
+                    bookingBlocked={isAdvanceBlocked}
+                    blockedMessage={advanceMessage}
+                    selectedBookingData={bookingData}
+                    onBook={handleBookingConfirm}
                   />
                 </div>
               )}
@@ -828,67 +783,7 @@ const App: React.FC = () => {
         </p>
       </footer>
 
-      {/* Booking Drawer Component */}
-      {isDrawerOpen && (
-        <>
-          {/* Backdrop */}
-          <div 
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              zIndex: 9998
-            }}
-            onClick={() => setIsDrawerOpen(false)}
-          />
-          
-          {/* Drawer - Matches calendar container width and positioning */}
-          <div 
-            className="drawer-content"
-            style={{
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              width: '100vw', // Full viewport width
-              backgroundColor: 'white',
-              borderTopLeftRadius: '10px',
-              borderTopRightRadius: '10px',
-              padding: '20px 40px', // Matches main content wrapper padding
-              maxHeight: '80vh',
-              overflowY: 'auto',
-              zIndex: 9999,
-              animation: 'slideUp 0.3s ease-out',
-              boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.15)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <BookingDrawer
-              date={bookingData?.date ? `${bookingData.date}.2025` : '30.07.2025'}
-              selectedTime={selectedStartTime}
-              selectedDuration={selectedDuration.toString()}
-              basePrice={`${durationOptions.find(opt => opt.minutes === selectedDuration)?.price || 25} CHF`}
-              onBack={() => {
-                setIsDrawerOpen(false)
-                // If calendar is disabled, re-enable it when going back
-                if (!isCalendarEnabled) {
-                  setIsCalendarEnabled(true)
-                }
-              }}
-              onNext={() => {
-                // Reset booking state and close drawer
-                setIsDrawerOpen(false)
-                setBookingData(null)
-                setSelectedStartTime('')
-                setSelectedDuration(60)
-              }}
-            />
-          </div>
-        </>
-      )}
+      {/* Drawer removed: navigation now routes to /booking */}
 
              {/* Participants Modal */}
        <ParticipantsModal

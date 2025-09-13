@@ -4,7 +4,7 @@ import { User, Info } from "lucide-react"
 interface BookingDrawerProps {
   date?: string
   onBack?: () => void
-  onNext?: () => void
+  // onNext?: () => void
   selectedTime?: string
   selectedDuration?: string
   basePrice?: string
@@ -14,7 +14,7 @@ interface BookingDrawerProps {
 const BookingDrawer: React.FC<BookingDrawerProps> = ({
   date = "28.08.2025",
   onBack,
-  onNext,
+  // onNext,
   selectedTime = "17:00",
   selectedDuration = "60",
   basePrice = "25 CHF",
