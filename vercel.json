@@ -1,8 +1,14 @@
 {
   "version": 2,
-  "buildCommand": "cd Availio-webapp-Booking-page/booking-app && npm run build",
-  "outputDirectory": "Availio-webapp-Booking-page/booking-app/dist",
-  "installCommand": "cd Availio-webapp-Booking-page/booking-app && npm install",
+  "builds": [
+    {
+      "src": "Availio-webapp-Booking-page/booking-app/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
   "routes": [
     {
       "src": "/(.*)",
