@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Availio Booking App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f4f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #fff;
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #4ade80;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        .club-name {
+            font-size: 20px;
+            font-weight: 500;
+            padding: 15px 0;
+            margin-bottom: 10px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 0;
+            margin-right: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .tab.active {
+            border-bottom-color: #000;
+        }
+
+        /* Booking Content */
+        .booking-content {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            margin-bottom: 20px;
+        }
+
+        .year-display {
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .today-button {
+            padding: 6px 12px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        /* Date Picker */
+        .date-picker {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 30px;
+            gap: 1px;
+            background-color: #f0f0f0;
+            margin: 0 30px;
+            border-radius: 6px;
+        }
+
+        .date-option {
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 6px;
+            min-width: 80px;
+            background-color: white;
+            color: #333;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .date-option:hover {
+            background-color: #e3f2fd;
+        }
+
+        .date-option.selected {
+            background-color: #008dcc;
+            color: #fff;
+        }
+
+        .date-day {
+            font-weight: 500;
+        }
+
+        /* Separator */
+        .separator {
+            width: calc(100% - 60px);
+            height: 1px;
+            background-color: #ddd;
+            margin: 25px 30px;
+        }
+
+        /* Calendar Toggle */
+        .calendar-toggle {
+            display: flex;
+            align-items: center;
+            margin: 20px 30px;
+        }
+
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background-color: #ccc;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .toggle-switch.active {
+            background-color: #008dcc;
+        }
+
+        .toggle-slider {
+            width: 20px;
+            height: 20px;
+            background-color: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 22px;
+        }
+
+        .toggle-label {
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Calendar */
+        .calendar-container {
+            padding: 0 30px;
+            margin-bottom: 30px;
+        }
+
+        .calendar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .calendar-grid {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: #fff;
+        }
+
+        .calendar-header {
+            display: grid;
+            grid-template-columns: 100px 1fr 1fr 1fr;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .calendar-header-cell {
+            padding: 12px;
+            text-align: center;
+            font-weight: 500;
+            border-right: 1px solid #ddd;
+        }
+
+        .calendar-header-cell:last-child {
+            border-right: none;
+        }
+
+        .calendar-body {
+            display: grid;
+            grid-template-columns: 100px 1fr 1fr 1fr;
+            min-height: 500px;
+        }
+
+        .time-slot {
+            padding: 8px;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+        }
+
+        .court-slot {
+            padding: 8px;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .court-slot:hover {
+            background-color: #e3f2fd;
+        }
+
+        .court-slot:last-child {
+            border-right: none;
+        }
+
+        .booking-event {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            right: 2px;
+            bottom: 2px;
+            background-color: #ef4444;
+            border-radius: 4px;
+            color: white;
+            font-size: 11px;
+            padding: 4px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .booking-event.maintenance {
+            background-color: #f59e0b;
+        }
+
+        .booking-event.available {
+            background-color: #10b981;
+        }
+
+        /* Drawer */
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+            display: none;
+        }
+
+        .drawer-backdrop.show {
+            display: block;
+        }
+
+        .drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+            max-width: 100vw;
+            margin: 0 auto;
+            padding: 0;
+            z-index: 9999;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+        }
+        .drawer.show {
+            transform: translateY(0);
+        }
+        .drawer-content {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px 24px 0 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .drawer-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .drawer-title {
+            font-size: 20px;
+            font-weight: 600;
+            text-align: left;
+        }
+        .drawer-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        .drawer-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 18px;
+        }
+        .drawer-label {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            text-align: left;
+        }
+        .drawer-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            width: 100%;
+        }
+        .drawer-button {
+            background: #eee;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .drawer-button.selected, .drawer-button:active {
+            background: #007bff;
+            color: #fff;
+        }
+        .drawer-button:hover {
+            background: #ddd;
+        }
+        .drawer-footer {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid #eee;
+        }
+        .drawer-summary {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            font-size: 15px;
+        }
+        .price-box {
+            background: #f5f7fa;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            display: none;
+        }
+
+        .modal-backdrop.show {
+            display: block;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 10001;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .participant-section {
+            margin-bottom: 20px;
+        }
+
+        .participant-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .participant-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .participant-item.organizer {
+            background-color: #eff6ff;
+        }
+
+        .participant-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .participant-avatar.organizer {
+            background-color: #3b82f6;
+        }
+
+        .participant-avatar.participant {
+            background-color: #6b7280;
+        }
+
+        .participant-info h4 {
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+
+        .participant-info p {
+            font-size: 12px;
+            color: #666;
+            margin: 0;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #555;
+            font-size: 14px;
+            margin-top: 40px;
+        }
+
+        .signout-button {
+            padding: 10px 20px;
+            background-color: #777;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .footer-links {
+            margin-top: 10px;
+        }
+
+        .footer-link {
+            color: #007acc;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content,
+            .main-container {
+                padding: 0 20px;
+            }
+
+            .drawer {
+                padding: 20px 20px;
+            }
+
+            .drawer-buttons {
+                justify-content: center;
+            }
+
+            .drawer-button {
+                flex: 1;
+                min-width: 80px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar-header,
+            .calendar-body {
+                grid-template-columns: 80px 1fr 1fr 1fr;
+            }
+
+            .drawer-footer {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .drawer-summary {
+                justify-content: center;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .drawer.show {
+            animation: slideUp 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div>
+                <div class="logo">AVAILIO</div>
+                <div class="logo-subtitle">Time spent well - powered by Fairgate</div>
+            </div>
+            <div class="header-controls">
+                <div class="language-selector">
+                    <span>EN</span>
+                    <span>▼</span>
+                </div>
+                <div class="user-avatar">👤</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="club-name">Pits Soccer Club</div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('booking')">Booking</div>
+            <div class="tab" onclick="switchTab('info')">Info</div>
+        </div>
+
+        <!-- Booking Content -->
+        <div id="booking-content" class="booking-content">
+            <div class="booking-header">
+                <div class="year-display">2025</div>
+                <div>
+                    <button class="today-button">today</button>
+                    <span>📅</span>
+                </div>
+            </div>
+
+            <!-- Date Picker -->
+            <div class="date-picker" id="date-picker">
+                <!-- Date options will be populated by JavaScript -->
+            </div>
+
+            <div class="separator"></div>
+
+            <!-- Calendar Toggle -->
+            <div class="calendar-toggle">
+                <div class="toggle-switch active" id="calendar-toggle" onclick="toggleCalendar()">
+                    <div class="toggle-slider"></div>
+                </div>
+                <label class="toggle-label" onclick="toggleCalendar()">calendar</label>
+            </div>
+
+            <!-- Calendar Container -->
+            <div id="calendar-container" class="calendar-container">
+                <div class="calendar-title">Court Availability Timeline</div>
+                <div class="calendar-grid">
+                    <div class="calendar-header">
+                        <div class="calendar-header-cell">Time</div>
+                        <div class="calendar-header-cell">Court 1</div>
+                        <div class="calendar-header-cell">Court 2</div>
+                        <div class="calendar-header-cell">Court 3</div>
+                    </div>
+                    <div class="calendar-body" id="calendar-body">
+                        <!-- Calendar slots will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Content -->
+        <div id="info-content" class="booking-content" style="display: none;">
+            <div style="padding: 40px; text-align: center;">
+                <p>Info content would go here</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <button class="signout-button">Sign out</button>
+        <p>Copyright © Fairgate AG. 2025 All rights reserved</p>
+        <div class="footer-links">
+            <a href="#" class="footer-link">Fairgate Privacy Policy</a>
+            <span> | </span>
+            <a href="#" class="footer-link">Fairgate Terms and Conditions</a>
+        </div>
+    </footer>
+
+    <!-- Drawer Backdrop -->
+    <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawer()"></div>
+
+    <!-- Booking Drawer -->
+    <div class="drawer" id="booking-drawer">
+        <div class="drawer-content">
+            <div class="drawer-header">
+                <div class="drawer-title" id="drawer-title">Booking Details</div>
+                <button class="drawer-close" onclick="closeDrawer()">×</button>
+            </div>
+
+            <div id="drawer-step1">
+                <div class="drawer-section">
+                    <label class="drawer-label">Select Start Time</label>
+                    <div class="drawer-buttons" id="time-buttons">
+                        <!-- Time buttons will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="drawer-section">
+                    <label class="drawer-label">Select Duration</label>
+                    <div class="drawer-buttons" id="duration-buttons">
+                        <!-- Duration buttons will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="drawer-section">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="drawer-label">Base Price:</span>
+                        <div class="price-box" id="base-price">25 CHF</div>
+                    </div>
+                </div>
+
+                <div class="drawer-footer">
+                    <button class="drawer-button" onclick="closeDrawer()">Back</button>
+                    <div class="drawer-summary">
+                        <span id="drawer-date">29.07.2025</span>
+                        <span id="drawer-time">17:00 - 18:00</span>
+                        <div class="price-box" id="drawer-price">25 CHF</div>
+                    </div>
+                    <button class="drawer-button" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <div id="drawer-step2" style="display: none;">
+                <div class="drawer-section">
+                    <div class="drawer-title">Booking Confirmation</div>
+                </div>
+                <div class="drawer-section">
+                    <div class="drawer-label">1: Add Players</div>
+                    <div class="drawer-buttons">
+                        <button class="drawer-button" onclick="addPlayer()">+ Add Player</button>
+                    </div>
+                </div>
+                <div class="drawer-section">
+                    <div class="drawer-label">2: Choose Payment Option</div>
+                    <div class="drawer-buttons" id="payment-buttons">
+                        <!-- Payment buttons will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="drawer-section" style="background: #f5f7fa; padding: 18px; border-radius: 6px; width: 100%; margin-bottom: 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 15px;">
+                        <span>Base Price:</span>
+                        <span>25 CHF</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 15px;">
+                        <span>Guest Fee:</span>
+                        <span>0 CHF</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 15px;">
+                        <span>Total VAT (10%):</span>
+                        <span>2.50 CHF</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid #ccc; font-weight: 600; font-size: 16px;">
+                        <span>Total Booking:</span>
+                        <span>27.50 CHF</span>
+                    </div>
+                </div>
+                <div class="drawer-footer">
+                    <button class="drawer-button" onclick="prevStep()">Back</button>
+                    <button class="drawer-button" style="background: #28a745; color: #fff;" onclick="confirmBooking()">Confirm Booking</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let currentTab = 'booking';
+        let selectedDate = '29.07';
+        let isCalendarEnabled = true;
+        let isDrawerOpen = false;
+        let currentDrawerStep = 1;
+        let selectedTime = '17:00';
+        let selectedDuration = 60;
+        let selectedPaymentOption = '';
+
+        // Sample data
+        const dates = [
+            { day: 'Fr', date: '25.07' },
+            { day: 'Sa', date: '26.07' },
+            { day: 'Su', date: '27.07' },
+            { day: 'Mo', date: '28.07' },
+            { day: 'Tu', date: '29.07' },
+            { day: 'We', date: '30.07' },
+            { day: 'Th', date: '31.07' },
+            { day: 'Fr', date: '01.08' },
+            { day: 'Sa', date: '02.08' },
+            { day: 'Su', date: '03.08' },
+            { day: 'Mo', date: '04.08' },
+            { day: 'Tu', date: '05.08' },
+            { day: 'We', date: '06.08' }
+        ];
+
+        const timeSlots = ["17:00", "17:15", "17:30", "17:45", "18:00", "18:15", "18:30", "18:45"];
+        const durationOptions = [
+            { minutes: 60, label: '60', price: 25 },
+            { minutes: 90, label: '90', price: 35 },
+            { minutes: 120, label: '120', price: 45 }
+        ];
+        const paymentOptions = ["Instant Payment", "Invoice", "Cash"];
+
+        // Mock booking events
+        const mockEvents = {
+            '29.07': [
+                { court: 1, start: '08:00', end: '09:30', type: 'booked', organizer: 'Daniel Schweri' },
+                { court: 2, start: '14:00', end: '16:00', type: 'booked', organizer: 'Maria Garcia' },
+                { court: 3, start: '09:00', end: '12:00', type: 'maintenance' }
+            ]
+        };
+
+        // Mock participants
+        const mockParticipants = {
+            'Daniel Schweri': [
+                { name: 'Daniel Schweri', isOrganizer: true },
+                { name: 'David Herzog', isOrganizer: false },
+                { name: 'Tobias Nafzger', isOrganizer: false }
+            ],
+            'Maria Garcia': [
+                { name: 'Maria Garcia', isOrganizer: true },
+                { name: 'Carlos Rodriguez', isOrganizer: false }
+            ]
+        };
+
+        // Initialize the app
+        function initApp() {
+            populateDatePicker();
+            populateCalendar();
+            populateTimeButtons();
+            populateDurationButtons();
+            populatePaymentButtons();
+        }
+
+        // Populate date picker
+        function populateDatePicker() {
+            const datePicker = document.getElementById('date-picker');
+            datePicker.innerHTML = '';
+
+            dates.forEach(dateObj => {
+                const dateOption = document.createElement('div');
+                dateOption.className = `date-option ${selectedDate === dateObj.date ? 'selected' : ''}`;
+                dateOption.onclick = () => selectDate(dateObj.date);
+                
+                dateOption.innerHTML = `
+                    <div class="date-day">${dateObj.day}</div>
+                    <div>${dateObj.date}</div>
+                `;
+                
+                datePicker.appendChild(dateOption);
+            });
+        }
+
+        // Select date
+        function selectDate(date) {
+            selectedDate = date;
+            populateDatePicker();
+            populateCalendar();
+            updateDrawerDate();
+        }
+
+        // Populate calendar
+        function populateCalendar() {
+            const calendarBody = document.getElementById('calendar-body');
+            calendarBody.innerHTML = '';
+
+            // Generate time slots from 07:00 to 22:00
+            for (let hour = 7; hour < 22; hour++) {
+                const timeSlot = document.createElement('div');
+                timeSlot.className = 'time-slot';
+                timeSlot.textContent = `${hour.toString().padStart(2, '0')}:00`;
+                calendarBody.appendChild(timeSlot);
+
+                // Add court slots for each time
+                for (let court = 1; court <= 3; court++) {
+                    const courtSlot = document.createElement('div');
+                    courtSlot.className = 'court-slot';
+                    courtSlot.onclick = () => selectTimeSlot(hour, court);
+                    
+                    // Check if there's an event at this time
+                    const events = mockEvents[selectedDate] || [];
+                    const event = events.find(e => e.court === court && 
+                        isTimeInRange(hour, e.start, e.end));
+                    
+                    if (event) {
+                        const eventDiv = document.createElement('div');
+                        eventDiv.className = `booking-event ${event.type}`;
+                        eventDiv.onclick = (e) => {
+                            e.stopPropagation();
+                            showParticipants(event);
+                        };
+                        
+                        if (event.type === 'booked') {
+                            eventDiv.innerHTML = `
+                                <div style="font-weight: 500;">Booked</div>
+                                <div style="font-size: 10px;">${event.organizer}</div>
+                            `;
+                        } else {
+                            eventDiv.innerHTML = '<div style="font-weight: 500;">Maintenance</div>';
+                        }
+                        
+                        courtSlot.appendChild(eventDiv);
+                    }
+                    
+                    calendarBody.appendChild(courtSlot);
+                }
+            }
+        }
+
+        // Check if time is in range
+        function isTimeInRange(hour, start, end) {
+            const startHour = parseInt(start.split(':')[0]);
+            const endHour = parseInt(end.split(':')[0]);
+            return hour >= startHour && hour < endHour;
+        }
+
+        // Select time slot
+        function selectTimeSlot(hour, court) {
+            if (!isCalendarEnabled) return;
+            
+            selectedTime = `${hour.toString().padStart(2, '0')}:00`;
+            selectedDuration = 60;
+            openDrawer();
+        }
+
+        // Toggle calendar
+        function toggleCalendar() {
+            isCalendarEnabled = !isCalendarEnabled;
+            const toggle = document.getElementById('calendar-toggle');
+            const container = document.getElementById('calendar-container');
+            
+            if (isCalendarEnabled) {
+                toggle.classList.add('active');
+                container.style.display = 'block';
+                closeDrawer();
+            } else {
+                toggle.classList.remove('active');
+                container.style.display = 'none';
+                openDrawer();
+            }
+        }
+
+        // Switch tab
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab styling
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide content
+            document.getElementById('booking-content').style.display = tab === 'booking' ? 'block' : 'none';
+            document.getElementById('info-content').style.display = tab === 'info' ? 'block' : 'none';
+        }
+
+        // Populate time buttons
+        function populateTimeButtons() {
+            const timeButtons = document.getElementById('time-buttons');
+            timeButtons.innerHTML = '';
+
+            timeSlots.forEach(time => {
+                const button = document.createElement('button');
+                button.className = `drawer-button ${selectedTime === time ? 'selected' : ''}`;
+                button.textContent = time;
+                button.onclick = () => selectTime(time);
+                timeButtons.appendChild(button);
+            });
+        }
+
+        // Select time
+        function selectTime(time) {
+            selectedTime = time;
+            populateTimeButtons();
+            updateDrawerTime();
+        }
+
+        // Populate duration buttons
+        function populateDurationButtons() {
+            const durationButtons = document.getElementById('duration-buttons');
+            durationButtons.innerHTML = '';
+
+            durationOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.className = `drawer-button ${selectedDuration === option.minutes ? 'selected' : ''}`;
+                button.textContent = option.label;
+                button.onclick = () => selectDuration(option.minutes);
+                durationButtons.appendChild(button);
+            });
+        }
+
+        // Select duration
+        function selectDuration(duration) {
+            selectedDuration = duration;
+            populateDurationButtons();
+            updateDrawerTime();
+            updateBasePrice();
+        }
+
+        // Populate payment buttons
+        function populatePaymentButtons() {
+            const paymentButtons = document.getElementById('payment-buttons');
+            paymentButtons.innerHTML = '';
+
+            paymentOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.className = `drawer-button ${selectedPaymentOption === option ? 'selected' : ''}`;
+                button.textContent = option;
+                button.onclick = () => selectPaymentOption(option);
+                paymentButtons.appendChild(button);
+            });
+        }
+
+        // Select payment option
+        function selectPaymentOption(option) {
+            selectedPaymentOption = option;
+            populatePaymentButtons();
+        }
+
+        // Open drawer
+        function openDrawer() {
+            isDrawerOpen = true;
+            document.getElementById('drawer-backdrop').classList.add('show');
+            document.getElementById('booking-drawer').classList.add('show');
+            updateDrawerContent();
+        }
+
+        // Close drawer
+        function closeDrawer() {
+            isDrawerOpen = false;
+            document.getElementById('drawer-backdrop').classList.remove('show');
+            document.getElementById('booking-drawer').classList.remove('show');
+            currentDrawerStep = 1;
+            showDrawerStep1();
+        }
+
+        // Update drawer content
+        function updateDrawerContent() {
+            updateDrawerDate();
+            updateDrawerTime();
+            updateBasePrice();
+        }
+
+        // Update drawer date
+        function updateDrawerDate() {
+            document.getElementById('drawer-date').textContent = `${selectedDate}.2025`;
+        }
+
+        // Update drawer time
+        function updateDrawerTime() {
+            const endHour = Math.floor(selectedTime.split(':')[0]) + Math.floor(selectedDuration / 60);
+            const endTime = `${endHour.toString().padStart(2, '0')}:${selectedTime.split(':')[1]}`;
+            document.getElementById('drawer-time').textContent = `${selectedTime} - ${endTime}`;
+        }
+
+        // Update base price
+        function updateBasePrice() {
+            const option = durationOptions.find(opt => opt.minutes === selectedDuration);
+            const price = option ? option.price : 25;
+            document.getElementById('base-price').textContent = `${price} CHF`;
+            document.getElementById('drawer-price').textContent = `${price} CHF`;
+        }
+
+        // Next step in drawer
+        function nextStep() {
+            currentDrawerStep = 2;
+            showDrawerStep2();
+        }
+
+        // Previous step in drawer
+        function prevStep() {
+            currentDrawerStep = 1;
+            showDrawerStep1();
+        }
+
+        // Show drawer step 1
+        function showDrawerStep1() {
+            document.getElementById('drawer-step1').style.display = 'block';
+            document.getElementById('drawer-step2').style.display = 'none';
+        }
+
+        // Show drawer step 2
+        function showDrawerStep2() {
+            document.getElementById('drawer-step1').style.display = 'none';
+            document.getElementById('drawer-step2').style.display = 'block';
+        }
+
+        // Add player
+        function addPlayer() {
+            alert('Add player functionality would be implemented here');
+        }
+
+        // Confirm booking
+        function confirmBooking() {
+            alert('Booking confirmed! This would typically send data to a backend server.');
+            closeDrawer();
+        }
+
+        // Show participants modal
+        function showParticipants(event) {
+            const participants = mockParticipants[event.organizer] || [];
+            const modal = document.getElementById('participants-modal');
+            const modalBackdrop = document.getElementById('modal-backdrop');
+            const participantsContainer = document.getElementById('modal-participants');
+            
+            // Update modal content
+            document.getElementById('modal-booking-time').textContent = `${event.start} – ${event.end}`;
+            document.getElementById('modal-court-name').textContent = `Court ${event.court}`;
+            
+            // Populate participants
+            participantsContainer.innerHTML = '';
+            
+            if (participants.length > 0) {
+                const organizer = participants.find(p => p.isOrganizer);
+                const otherParticipants = participants.filter(p => !p.isOrganizer);
+                
+                if (organizer) {
+                    const organizerSection = document.createElement('div');
+                    organizerSection.className = 'participant-section';
+                    organizerSection.innerHTML = `
+                        <div class="participant-title">Organizer</div>
+                        <div class="participant-item organizer">
+                            <div class="participant-avatar organizer">${getInitials(organizer.name)}</div>
+                            <div class="participant-info">
+                                <h4>${organizer.name}</h4>
+                                <p>Organizer</p>
+                            </div>
+                        </div>
+                    `;
+                    participantsContainer.appendChild(organizerSection);
+                }
+                
+                if (otherParticipants.length > 0) {
+                    const participantsSection = document.createElement('div');
+                    participantsSection.className = 'participant-section';
+                    participantsSection.innerHTML = `
+                        <div class="participant-title">Participants (${otherParticipants.length})</div>
+                    `;
+                    
+                    otherParticipants.forEach(participant => {
+                        const participantItem = document.createElement('div');
+                        participantItem.className = 'participant-item';
+                        participantItem.innerHTML = `
+                            <div class="participant-avatar participant">${getInitials(participant.name)}</div>
+                            <div class="participant-info">
+                                <h4>${participant.name}</h4>
+                            </div>
+                        `;
+                        participantsSection.appendChild(participantItem);
+                    });
+                    
+                    participantsContainer.appendChild(participantsSection);
+                }
+            } else {
+                participantsContainer.innerHTML = `
+                    <div style="text-align: center; padding: 16px; color: #666;">
+                        <p style="font-size: 14px; margin: 0;">No participants found</p>
+                    </div>
+                `;
+            }
+            
+            // Show modal
+            modalBackdrop.classList.add('show');
+            modal.classList.add('show');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('modal-backdrop').classList.remove('show');
+            document.getElementById('participants-modal').classList.remove('show');
+        }
+
+        // Get initials from name
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('');
+        }
+
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html> 
